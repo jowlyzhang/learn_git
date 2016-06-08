@@ -1,0 +1,74 @@
+Let's represent mathematically relationship between two files:
+    def issame(file1, file2):
+        if (each and every line of file1 and file2 is exactly the same):
+            return True
+        return False
+
+    def difference(file1, file2):
+        return {'added': (all the lines that are added)
+                'deleted': (all the lines that are deleted)
+               }
+
+    A<------B<-------C
+    difference(C, A) = difference(B, A) + difference(C, B)
+
+If git goes down to this level, it can do all merge for you automatically. But it doesn't
+make sense if whichever change that comes last is previliged to become the ultimate change.
+
+so, what git does is just tracking the difference, and let you decide which ones to keep when
+there is conflict. Then, what is considered conflicts in git? Changes made to the same file, but
+are different changes:
+
+    def singlefileconflict(file1, file2):
+        if issame(file1, file2):
+            return False
+
+        if isnewfile(file1):
+            return False
+
+        commonances = findcommonances(file1, file2)
+        if difference(file1, commonances) == difference(file2, commonances):
+            return False
+
+        return True
+
+    def isconflict():
+        for file1, file2 in all_files():
+            if singlefileconflict(file1, file2):
+                return True
+
+        return False
+
+
+    def merge():
+        if not isconflict():
+           do it
+
+    def commit():
+        new_blob = creat_snapshot()
+        new_blob.mama = HEAD
+        HEAD = new_blob
+
+    def branch():
+        new_branch = get_a_branch_pointer()
+        new_branch = HEAD
+        return new_branch
+
+    def checkout(branch):
+        HEAD = branch
+
+The case of merging local branch to corresponding remote branch is no different from merging
+two local branches together. 'pull' is essentially 'fetch' + 'merge'
+
+merge --rebase (put local ones on top) preferrable
+merge (folow timeline)
+
+Possible cases:
+    1. fast forward: easiest, just a simple shift
+    2. no conflict: stack one on top  of another based on timeline
+    3. conflict: solve your conflict, make it conflict free
+
+Two merge ways:
+    1. non-rebase: maybe based on timeline
+    2. rebase: put local on top. If it's local merge to remote, local commits on top
+       if it's one branch merge to another, one branch would be on top.
